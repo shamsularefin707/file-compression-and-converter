@@ -32,44 +32,6 @@ app.get(['/api/health', '/health'], (_req: any, res: any) => {
   });
 });
 
-// In-memory counter store for local dev
-let devPageViews = 48520;
-let devVisitors = 14290;
-let devConversions = 38940;
-const devVisitorCache = new Set<string>();
-
-// Public Telemetry & Stats Endpoint
-app.get(['/api/stats', '/stats'], (_req: any, res: any) => {
-  return res.json({
-    status: 'ok',
-    pageViews: devPageViews,
-    visitors: devVisitors,
-    conversions: devConversions,
-    activeNow: Math.floor(Math.random() * 8) + 14,
-    timestamp: new Date().toISOString(),
-  });
-});
-
-app.post(['/api/stats', '/stats'], (req: any, res: any) => {
-  const { isNewVisitor, visitorId, action } = req.body || {};
-  if (action === 'conversion') {
-    devConversions += 1;
-  } else {
-    devPageViews += 1;
-    if (isNewVisitor || (visitorId && !devVisitorCache.has(visitorId))) {
-      devVisitors += 1;
-      if (visitorId) devVisitorCache.add(visitorId);
-    }
-  }
-  return res.json({
-    success: true,
-    pageViews: devPageViews,
-    visitors: devVisitors,
-    conversions: devConversions,
-    timestamp: new Date().toISOString(),
-  });
-});
-
 // Public Capabilities Endpoint
 app.get(['/api/capabilities', '/capabilities'], (_req: any, res: any) => {
   return res.json({

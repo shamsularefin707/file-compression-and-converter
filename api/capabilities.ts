@@ -39,11 +39,5 @@ export default function handler(_req: Request, res: Response) {
       client_side: '100% local browser WebAssembly/Canvas processing',
       serverless_ephemeral: 'RAM-buffered Node.js execution with zero permanent disk retention',
     },
-    telemetry_endpoints: {
-      stats: '/api/stats (Real-time unique visitors and page views counter)',
-      health: '/api/health',
-      capabilities: '/api/capabilities',
-      audit: '/api/audit',
-    },
   });
 }

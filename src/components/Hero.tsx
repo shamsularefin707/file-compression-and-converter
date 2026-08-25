@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { UploadCloud, ShieldCheck, FileCode, Users, Eye } from 'lucide-react';
-import { fetchSiteStats, type SiteStats } from '../services/stats';
+import React from 'react';
+import { UploadCloud, ShieldCheck, FileCode } from 'lucide-react';
 
 interface HeroProps {
   onExploreTools: () => void;
@@ -8,25 +7,6 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onExploreTools, onPdfToMarkdown }) => {
-  const [stats, setStats] = useState<SiteStats>({
-    pageViews: 48520,
-    visitors: 14290,
-    conversions: 38940,
-    activeNow: 16,
-  });
-
-  useEffect(() => {
-    let isMounted = true;
-    fetchSiteStats().then((data) => {
-      if (isMounted && data) {
-        setStats(data);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   return (
     <section id="hero" className="relative overflow-hidden pt-12 pb-16 sm:pb-24 sm:pt-16">
       {/* Background Decorative Blobs */}
@@ -49,12 +29,12 @@ export const Hero: React.FC<HeroProps> = ({ onExploreTools, onPdfToMarkdown }) =
         </h1>
 
         {/* Supporting text */}
-        <p className="font-sans text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+        <p className="font-sans text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
           Free browser-based tools for PDFs, images, documents, and AI-ready file conversion.
         </p>
 
         {/* Call to actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={onExploreTools}
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer"
@@ -69,27 +49,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreTools, onPdfToMarkdown }) =
             <FileCode className="w-4 h-4 text-brand-500" />
             <span>PDF to Markdown</span>
           </button>
-        </div>
-
-        {/* Live Visitor & Page Views Stats Ribbon */}
-        <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-3 rounded-2xl bg-white/60 dark:bg-slate-950/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 text-xs font-semibold text-slate-600 dark:text-slate-400 shadow-sm">
-          <div className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-brand-500" />
-            <span><strong className="text-slate-800 dark:text-slate-200">{stats.visitors.toLocaleString()}</strong> Visitors</span>
-          </div>
-          <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
-          <div className="flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5 text-purple-500" />
-            <span><strong className="text-slate-800 dark:text-slate-200">{stats.pageViews.toLocaleString()}</strong> Page Views</span>
-          </div>
-          <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
-          <div className="flex items-center gap-1.5">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{stats.activeNow} Active Now</span>
-          </div>
         </div>
       </div>
     </section>

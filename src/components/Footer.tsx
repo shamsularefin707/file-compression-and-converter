@@ -1,32 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Hammer, Users, Eye, Zap, Activity } from 'lucide-react';
+import React from 'react';
+import { Hammer } from 'lucide-react';
 import { SITE_CONFIG } from '../config/site';
-import { recordPageView, type SiteStats } from '../services/stats';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const [stats, setStats] = useState<SiteStats>({
-    pageViews: 48520,
-    visitors: 14290,
-    conversions: 38940,
-    activeNow: 16,
-  });
-
-  useEffect(() => {
-    let isMounted = true;
-    recordPageView().then((data) => {
-      if (isMounted && data) {
-        setStats(data);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     e.preventDefault();
     onNavigate(path);
@@ -35,72 +15,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
     <footer className="bg-white dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 py-12 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        
-        {/* Live Visitors & Page Views Counter Bar */}
-        <div className="mb-10 p-4 sm:p-6 rounded-3xl bg-slate-50/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
-                <Activity className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="font-display font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                  <span>Live Telemetry & Usage Counter</span>
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                </h4>
-                <p className="font-sans text-xxs text-slate-500 dark:text-slate-400">
-                  Privacy-first global activity metrics (Zero PII logged)
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 w-full sm:w-auto text-center font-sans">
-              <div className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">
-                  <Users className="w-3.5 h-3.5 text-brand-500" />
-                  <span>Unique Visitors</span>
-                </div>
-                <p className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
-                  {stats.visitors.toLocaleString()}
-                </p>
-              </div>
-
-              <div className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">
-                  <Eye className="w-3.5 h-3.5 text-purple-500" />
-                  <span>Page Views</span>
-                </div>
-                <p className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
-                  {stats.pageViews.toLocaleString()}
-                </p>
-              </div>
-
-              <div className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">
-                  <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Files Processed</span>
-                </div>
-                <p className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">
-                  {stats.conversions.toLocaleString()}
-                </p>
-              </div>
-
-              <div className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>Active Now</span>
-                </div>
-                <p className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                  {stats.activeNow} live
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Logo & Bio */}
           <div className="md:col-span-2 space-y-4">

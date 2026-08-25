@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Upload, 
   File, 
@@ -36,17 +36,24 @@ import {
   htmlToPdfBlob
 } from '../utils/fileProcessor';
 import { monetization } from '../services/monetization';
-import { analytics } from '../services/analytics';
+import { trackEvent } from '../services/analytics';
 import { AdModal } from './AdModal';
 import { convertPdfViaBackend } from '../services/backend';
 
 interface WorkspaceProps {
-  onScrollTo: (id: string) => void;
+  onScrollTo?: (id: string) => void;
+  initialTargetFormat?: string;
 }
 
-export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
+export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo, initialTargetFormat }) => {
   const [activeTab, setActiveTab] = useState<FileAction>('compress');
   const [queue, setQueue] = useState<FileItem[]>([]);
+
+  useEffect(() => {
+    if (initialTargetFormat) {
+      setActiveTab('convert');
+    }
+  }, [initialTargetFormat]);
   const [settings, setSettings] = useState<CompressionSettings>({
     quality: 80,
     resizeOption: 'original',
@@ -190,10 +197,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
       }
 
       newItems.push(newItem);
-      analytics.track({
-        type: 'file_uploaded',
-        payload: { name: file.name, size: file.size, mimeType: file.type }
-      });
+      trackEvent('file_uploaded', { name: file.name, size: file.size, mimeType: file.type });
     });
 
     if (errors.length > 0) {
@@ -321,7 +325,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
     addFilesToQueue(demoFiles);
     // Scroll down to queue
     setTimeout(() => {
-      onScrollTo('queue-workspace');
+      onScrollTo?.('queue-workspace');
     }, 150);
   };
 
@@ -329,15 +333,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
   const processFileItem = async (item: FileItem): Promise<FileItem> => {
     const ext = getFileExtension(item.name);
     if (item.action === 'compress') {
-      analytics.track({
-        type: 'compression_started',
-        payload: { id: item.id, name: item.name, size: item.size, action: 'compress' }
-      });
+      trackEvent('compression_started', { id: item.id, name: item.name, size: item.size, action: 'compress' });
     } else {
-      analytics.track({
-        type: 'conversion_started',
-        payload: { id: item.id, name: item.name, from: ext, to: item.targetFormat || '' }
-      });
+      trackEvent('conversion_started', { id: item.id, name: item.name, from: ext, to: item.targetFormat || '' });
     }
 
     try {
@@ -649,14 +647,11 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
       setQueue(prev => prev.map(q => q.id === item.id ? processedItem : q));
       
       if (processedItem.status === 'completed') {
-        analytics.track({
-          type: 'compression_completed',
-          payload: {
-            id: item.id,
-            originalSize: item.size,
-            outputSize: processedItem.outputSize || 0,
-            savedBytes: item.size - (processedItem.outputSize || item.size)
-          }
+        trackEvent('compression_completed', {
+          id: item.id,
+          originalSize: item.size,
+          outputSize: processedItem.outputSize || 0,
+          savedBytes: item.size - (processedItem.outputSize || item.size)
         });
       }
     }
@@ -721,12 +716,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
       document.body.removeChild(link);
       
       URL.revokeObjectURL(downloadUrl);
-      analytics.track({
-        type: 'batch_download_clicked',
-        payload: {
-          fileCount: completedItems.length,
-          totalSize: zipBlob.size,
-        }
+      trackEvent('batch_download_clicked', {
+        fileCount: completedItems.length,
+        totalSize: zipBlob.size,
       });
     } catch (err) {
       console.error(err);
@@ -1140,7 +1132,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
                             download={item.outputName || 'processed_file'}
                             className="p-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 dark:bg-brand-950/40 dark:hover:bg-brand-900/60 dark:text-brand-400 transition-colors"
                             title="Download Processed File"
-                            onClick={() => analytics.track({ type: 'download_clicked', payload: { id: item.id, name: item.outputName || '', size: item.outputSize || 0 } })}
+                            onClick={() => trackEvent('download_clicked', { id: item.id, name: item.outputName || '', size: item.outputSize || 0 })}
                           >
                             <Download className="w-4 h-4" />
                           </a>

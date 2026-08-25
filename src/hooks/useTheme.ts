@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { analytics } from '../services/analytics';
+import { trackEvent } from '../services/analytics';
 
 export type Theme = 'light' | 'dark';
 
@@ -29,7 +29,7 @@ export function useTheme() {
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
-    analytics.track({ type: 'theme_toggled', payload: { theme: nextTheme } });
+    trackEvent('theme_toggled', { theme: nextTheme });
   };
 
   return { theme, toggleTheme };

@@ -1,92 +1,113 @@
 import React from 'react';
-import { Hammer, Mail } from 'lucide-react';
+import { Hammer } from 'lucide-react';
+import { SITE_CONFIG } from '../config/site';
 
 interface FooterProps {
-  onScrollTo: (id: string) => void;
+  onNavigate: (path: string) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onScrollTo }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
-    <footer className="bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800/80 py-12 transition-colors duration-300">
+    <footer className="bg-white dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 py-12 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Logo & Bio */}
           <div className="md:col-span-2 space-y-4">
             <div 
               className="flex items-center gap-2 cursor-pointer group"
-              onClick={() => onScrollTo('hero')}
+              onClick={() => onNavigate('/')}
             >
               <div className="bg-gradient-to-tr from-brand-600 to-accent-600 p-2 rounded-xl text-white">
                 <Hammer className="w-4 h-4" />
               </div>
               <span className="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent dark:from-brand-400 dark:to-accent-400">
-                FileForge
+                {SITE_CONFIG.name}
               </span>
             </div>
             <p className="font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
-              A high-performance, local browser-based utility suite. Compress images and PDFs, convert document formats, data files, and archives without uploading them to external servers.
+              Fast, private, browser-first file conversion & document preparation tools. Optimized for modern web graphics and AI LLM prompt workflows.
             </p>
           </div>
 
-          {/* Quick links */}
+          {/* Tools & Guides */}
           <div className="space-y-3">
             <h4 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-200">
-              Product
+              Product & Tools
             </h4>
             <ul className="space-y-2 font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               <li>
-                <button onClick={() => onScrollTo('workspace-compress')} className="hover:text-brand-500 transition-colors">
-                  File Compressor
+                <button onClick={() => onNavigate('/tools/pdf-to-markdown')} className="hover:text-brand-500 transition-colors">
+                  PDF to Markdown (AI)
                 </button>
               </li>
               <li>
-                <button onClick={() => onScrollTo('workspace-convert')} className="hover:text-brand-500 transition-colors">
-                  File Converter
+                <button onClick={() => onNavigate('/tools/pdf-to-docx')} className="hover:text-brand-500 transition-colors">
+                  PDF to Word (DOCX)
                 </button>
               </li>
               <li>
-                <button onClick={() => onScrollTo('features')} className="hover:text-brand-500 transition-colors">
-                  Features
+                <button onClick={() => onNavigate('/tools/compress-pdf')} className="hover:text-brand-500 transition-colors">
+                  PDF Compressor
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('/tools/jpg-to-webp')} className="hover:text-brand-500 transition-colors">
+                  JPG to WebP
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('/blog')} className="hover:text-brand-500 transition-colors">
+                  AI Document Guides
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Contact & Socials */}
-          <div className="space-y-4">
+          {/* Company & Support */}
+          <div className="space-y-3">
             <h4 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-200">
-              Get in Touch
+              Trust & Support
             </h4>
-            <div className="flex gap-4 text-slate-400 dark:text-slate-500">
-              <a href="#" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="GitHub">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                  <path d="M9 18c-4.51 2-5-2-7-2" />
-                </svg>
-              </a>
-              <a href="#" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Twitter">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-                </svg>
-              </a>
-              <a href="mailto:support@fileforge.local" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Email">
-                <Mail className="w-5 h-5" />
-              </a>
-            </div>
-            <p className="font-sans text-xs text-slate-500 dark:text-slate-400">
-              support@fileforge.local
-            </p>
+            <ul className="space-y-2 font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              <li>
+                <button onClick={() => onNavigate('/about')} className="hover:text-brand-500 transition-colors">
+                  About FileForge
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('/privacy')} className="hover:text-brand-500 transition-colors">
+                  Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('/terms')} className="hover:text-brand-500 transition-colors">
+                  Terms of Service
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('/contact')} className="hover:text-brand-500 transition-colors">
+                  Contact & Feedback
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
 
         {/* Bottom footer */}
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-sans text-xs text-slate-400 dark:text-slate-500">
-            &copy; {new Date().getFullYear()} FileForge. All rights reserved. Locally processed, never uploaded.
+            &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. Fast, private, and AI-ready file processing.
           </p>
-          <div className="flex gap-6 font-sans text-xs text-slate-400 dark:text-slate-500">
-            <a href="#" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Terms of Service</a>
+          <div className="flex gap-4 font-sans text-xs text-slate-400 dark:text-slate-500">
+            <button onClick={() => onNavigate('/privacy')} className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+              Privacy Policy
+            </button>
+            <button onClick={() => onNavigate('/terms')} className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+              Terms
+            </button>
+            <button onClick={() => onNavigate('/contact')} className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+              Contact
+            </button>
           </div>
         </div>
       </div>

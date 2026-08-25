@@ -4,28 +4,92 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="canonical" href="https://file-compression-and-converter.vercel.app/" />
+
+    <!-- Crawler & Indexing Instructions -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+
     <!-- Primary Meta Tags -->
-    <title>FileForge - Free File Compressor & Converter</title>
-    <meta name="title" content="FileForge - Free File Compressor & Converter" />
-    <meta name="description" content="Compress images, PDFs and files, and convert between popular formats with a fast privacy-first file toolkit." />
+    <title>FileForge — Fast, Private File Converter & AI Document Tools</title>
+    <meta name="title" content="FileForge — Fast, Private File Converter & AI Document Tools" />
+    <meta name="description" content="Free online file tools: Convert PDF to Markdown for ChatGPT/Claude prompts, PDF to DOCX, image compressor, and WebP tools with 100% browser privacy." />
+    <meta name="keywords" content="pdf to markdown, pdf to docx, file converter, image compressor, jpg to webp, ai document preparation" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://fileforge.local/" />
-    <meta property="og:title" content="FileForge - Free File Compressor & Converter" />
-    <meta property="og:description" content="Compress images, PDFs and files, and convert between popular formats with a fast privacy-first file toolkit." />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://file-compression-and-converter.vercel.app/" />
+    <meta property="og:title" content="FileForge — Fast, Private File Converter & AI Document Tools" />
+    <meta property="og:description" content="Free online file tools: Convert PDF to Markdown for ChatGPT/Claude prompts, PDF to DOCX, image compressor, and WebP tools." />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://fileforge.local/" />
-    <meta property="twitter:title" content="FileForge - Free File Compressor & Converter" />
-    <meta property="twitter:description" content="Compress images, PDFs and files, and convert between popular formats with a fast privacy-first file toolkit." />
-    <meta property="twitter:image" content="/og-image.png" />
+    <meta property="twitter:url" content="https://file-compression-and-converter.vercel.app/" />
+    <meta property="twitter:title" content="FileForge — Fast, Private File Converter & AI Document Tools" />
+    <meta property="twitter:description" content="Free online file tools: Convert PDF to Markdown for ChatGPT/Claude prompts, PDF to DOCX, image compressor, and WebP tools." />
+
+    <!-- Global JSON-LD Schema for AI & Search Crawlers -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FileForge",
+        "url": "https://file-compression-and-converter.vercel.app/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "All",
+        "description": "Fast, private browser-based file conversion and AI document preparation platform.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0.00",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
-  <body>
-    <div id="root"></div>
+  <body className="bg-slate-50 dark:bg-slate-950">
+    <div id="root">
+      <!-- Static Fallback HTML Content for Text Crawlers & AI Scrapers -->
+      <header style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+        <h1>FileForge — Fast, Private File Converter & AI Document Suite</h1>
+        <p>Convert PDF to Markdown for ChatGPT, PDF to Word (DOCX), compress images, and transcode graphics to WebP cleanly.</p>
+        <nav>
+          <a href="/tools">All Tools Directory</a> | 
+          <a href="/tools/pdf-to-markdown">PDF to Markdown AI Converter</a> | 
+          <a href="/tools/pdf-to-docx">PDF to Word (DOCX)</a> | 
+          <a href="/tools/compress-pdf">PDF Compressor</a> | 
+          <a href="/about">About Engine</a> | 
+          <a href="/privacy">Privacy Guarantee</a>
+        </nav>
+      </header>
+      <main style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+        <h2>Key Conversion & Compression Utilities</h2>
+        <ul>
+          <li><strong>PDF to Markdown (AI LLM Optimized)</strong>: Strips binary markers while preserving H1-H4 headings and tables for ChatGPT prompts.</li>
+          <li><strong>PDF to Word (DOCX)</strong>: NDM structural layout reconstruction for Microsoft Word.</li>
+          <li><strong>Image Compression & WebP Transcoding</strong>: Local browser WebAssembly image optimization.</li>
+        </ul>
+      </main>
+    </div>
+
+    <!-- Noscript Fallback for JavaScript-Disabled Crawlers -->
+    <noscript>
+      <div style="padding: 32px; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
+        <h1>FileForge - Document & File Conversion Suite</h1>
+        <p>FileForge offers 18 free online file conversion and compression tools. All client-side tools execute 100% inside your web browser for total privacy.</p>
+        <h2>Available Utilities</h2>
+        <ul>
+          <li><a href="/tools/pdf-to-markdown">PDF to Markdown (AI Prompt Ready)</a></li>
+          <li><a href="/tools/pdf-to-docx">PDF to Microsoft Word (DOCX)</a></li>
+          <li><a href="/tools/compress-pdf">PDF Document Compressor</a></li>
+          <li><a href="/tools/image-compressor">JPG/PNG Image Compressor</a></li>
+          <li><a href="/tools/jpg-to-webp">JPG to WebP Converter</a></li>
+        </ul>
+        <p>Read our <a href="/privacy">Privacy Policy</a> and <a href="/about">About Page</a> for more details.</p>
+      </div>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

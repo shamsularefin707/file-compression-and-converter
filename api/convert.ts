@@ -22,6 +22,57 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Public non-sensitive Health Endpoint
+app.get(['/api/health', '/health'], (_req: any, res: any) => {
+  return res.json({
+    status: 'ok',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'production',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Public Capabilities Endpoint
+app.get(['/api/capabilities', '/capabilities'], (_req: any, res: any) => {
+  return res.json({
+    name: 'FileForge Conversion Engine',
+    version: '1.0.0',
+    supported_tools: [
+      'pdf-to-markdown',
+      'pdf-to-txt',
+      'pdf-to-docx',
+      'docx-to-markdown',
+      'html-to-markdown',
+      'markdown-to-html',
+      'compress-pdf',
+      'images-to-pdf',
+      'pdf-to-images',
+      'image-compressor',
+      'jpg-to-webp',
+      'png-to-webp',
+      'webp-to-jpg',
+      'png-to-jpg',
+      'jpg-to-png',
+      'csv-to-json',
+      'json-to-csv',
+      'csv-to-xlsx',
+    ],
+    supported_formats: {
+      input: ['pdf', 'docx', 'html', 'md', 'jpg', 'jpeg', 'png', 'webp', 'csv', 'json'],
+      output: ['md', 'txt', 'docx', 'html', 'pdf', 'jpg', 'png', 'webp', 'csv', 'json', 'xlsx', 'zip'],
+    },
+    limits: {
+      max_client_file_size_mb: 50,
+      max_serverless_file_size_mb: 25,
+      max_batch_file_count: 10,
+    },
+    processing_modes: {
+      client_side: '100% local browser WebAssembly/Canvas processing',
+      serverless_ephemeral: 'RAM-buffered Node.js execution with zero permanent disk retention',
+    },
+  });
+});
+
 // Multer in-memory storage configuration
 const upload = multer({
   storage: multer.memoryStorage(),

@@ -1,0 +1,235 @@
+{
+  "name": "FileForge",
+  "version": "1.0.0",
+  "description": "Fast, private online file conversion, compression, and AI document preparation platform.",
+  "website_url": "https://file-compression-and-converter.vercel.app",
+  "repository_url": "https://github.com/shamsularefin707/file-compression-and-converter",
+  "limits": {
+    "max_client_file_size_mb": 50,
+    "max_serverless_file_size_mb": 25,
+    "max_batch_file_count": 10,
+    "pro_file_size_limit_mb": 200
+  },
+  "processing_modes": {
+    "client_side": "100% local browser WebAssembly/Canvas processing. Files never leave device.",
+    "serverless_ephemeral": "RAM-buffered Node.js execution. Buffers destroyed immediately upon response completion."
+  },
+  "privacy": {
+    "file_retention": "Zero permanent retention. Files are not logged or backed up.",
+    "telemetry": "Anonymous event counting (e.g. tool_viewed, conversion_completed). No document contents recorded."
+  },
+  "supported_tools": [
+    {
+      "id": "pdf-to-markdown",
+      "slug": "pdf-to-markdown",
+      "name": "PDF to Markdown Converter (AI Ready)",
+      "category": "document",
+      "input_formats": ["pdf"],
+      "output_format": "md",
+      "processing_mode": "serverless_ephemeral",
+      "is_ai_ready": true
+    },
+    {
+      "id": "pdf-to-txt",
+      "slug": "pdf-to-txt",
+      "name": "PDF to Plain Text Converter",
+      "category": "document",
+      "input_formats": ["pdf"],
+      "output_format": "txt",
+      "processing_mode": "serverless_ephemeral",
+      "is_ai_ready": true
+    },
+    {
+      "id": "pdf-to-docx",
+      "slug": "pdf-to-docx",
+      "name": "PDF to Word Converter (DOCX)",
+      "category": "document",
+      "input_formats": ["pdf"],
+      "output_format": "docx",
+      "processing_mode": "serverless_ephemeral",
+      "is_ai_ready": false
+    },
+    {
+      "id": "docx-to-markdown",
+      "slug": "docx-to-markdown",
+      "name": "Word (DOCX) to Markdown Converter",
+      "category": "document",
+      "input_formats": ["docx"],
+      "output_format": "md",
+      "processing_mode": "client_side",
+      "is_ai_ready": true
+    },
+    {
+      "id": "html-to-markdown",
+      "slug": "html-to-markdown",
+      "name": "HTML to Markdown Converter",
+      "category": "document",
+      "input_formats": ["html", "htm"],
+      "output_format": "md",
+      "processing_mode": "client_side",
+      "is_ai_ready": true
+    },
+    {
+      "id": "markdown-to-html",
+      "slug": "markdown-to-html",
+      "name": "Markdown to HTML Converter",
+      "category": "document",
+      "input_formats": ["md", "markdown"],
+      "output_format": "html",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "compress-pdf",
+      "slug": "compress-pdf",
+      "name": "PDF Document Compressor",
+      "category": "pdf",
+      "input_formats": ["pdf"],
+      "output_format": "pdf",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "images-to-pdf",
+      "slug": "images-to-pdf",
+      "name": "Images to PDF Converter",
+      "category": "pdf",
+      "input_formats": ["jpg", "jpeg", "png", "webp"],
+      "output_format": "pdf",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "pdf-to-images",
+      "slug": "pdf-to-images",
+      "name": "PDF to Images Extractor",
+      "category": "pdf",
+      "input_formats": ["pdf"],
+      "output_format": "zip",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "image-compressor",
+      "slug": "image-compressor",
+      "name": "Image Compressor & Optimizer",
+      "category": "image",
+      "input_formats": ["jpg", "jpeg", "png", "webp"],
+      "output_format": "optimized",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "jpg-to-webp",
+      "slug": "jpg-to-webp",
+      "name": "JPG to WebP Converter",
+      "category": "image",
+      "input_formats": ["jpg", "jpeg"],
+      "output_format": "webp",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "png-to-webp",
+      "slug": "png-to-webp",
+      "name": "PNG to WebP Converter",
+      "category": "image",
+      "input_formats": ["png"],
+      "output_format": "webp",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "webp-to-jpg",
+      "slug": "webp-to-jpg",
+      "name": "WebP to JPG Converter",
+      "category": "image",
+      "input_formats": ["webp"],
+      "output_format": "jpg",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "png-to-jpg",
+      "slug": "png-to-jpg",
+      "name": "PNG to JPG Converter",
+      "category": "image",
+      "input_formats": ["png"],
+      "output_format": "jpg",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "jpg-to-png",
+      "slug": "jpg-to-png",
+      "name": "JPG to PNG Converter",
+      "category": "image",
+      "input_formats": ["jpg", "jpeg"],
+      "output_format": "png",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "csv-to-json",
+      "slug": "csv-to-json",
+      "name": "CSV to JSON Converter",
+      "category": "data",
+      "input_formats": ["csv"],
+      "output_format": "json",
+      "processing_mode": "client_side",
+      "is_ai_ready": true
+    },
+    {
+      "id": "json-to-csv",
+      "slug": "json-to-csv",
+      "name": "JSON to CSV Converter",
+      "category": "data",
+      "input_formats": ["json"],
+      "output_format": "csv",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    },
+    {
+      "id": "csv-to-xlsx",
+      "slug": "csv-to-xlsx",
+      "name": "CSV to Excel (XLSX) Converter",
+      "category": "data",
+      "input_formats": ["csv"],
+      "output_format": "xlsx",
+      "processing_mode": "client_side",
+      "is_ai_ready": false
+    }
+  ],
+  "public_routes": [
+    "/",
+    "/compress",
+    "/convert",
+    "/tools",
+    "/tools/pdf-to-markdown",
+    "/tools/pdf-to-txt",
+    "/tools/pdf-to-docx",
+    "/tools/docx-to-markdown",
+    "/tools/html-to-markdown",
+    "/tools/markdown-to-html",
+    "/tools/compress-pdf",
+    "/tools/images-to-pdf",
+    "/tools/pdf-to-images",
+    "/tools/image-compressor",
+    "/tools/jpg-to-webp",
+    "/tools/png-to-webp",
+    "/tools/webp-to-jpg",
+    "/tools/png-to-jpg",
+    "/tools/jpg-to-png",
+    "/tools/csv-to-json",
+    "/tools/json-to-csv",
+    "/tools/csv-to-xlsx",
+    "/blog",
+    "/blog/pdf-to-markdown-ai-guide",
+    "/privacy",
+    "/terms",
+    "/about",
+    "/contact",
+    "/api/health",
+    "/api/capabilities"
+  ]
+}

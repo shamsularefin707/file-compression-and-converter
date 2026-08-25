@@ -8,6 +8,8 @@
     "server": "tsx api/convert.ts",
     "dev:all": "concurrently \"npm:dev\" \"npm:server\"",
     "build": "tsc -b && vite build",
+    "test": "node tests/suite.test.mjs",
+    "audit": "node scripts/audit.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "predeploy": "npm run build",

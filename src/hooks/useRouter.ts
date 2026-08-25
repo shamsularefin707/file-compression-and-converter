@@ -26,7 +26,7 @@ export function useRouter() {
     }
   };
 
-  // Route Parser with trailing slash normalization
+  // Route Parser with trailing slash normalization & alias handling
   const parseRoute = (): RouteState => {
     let path = currentPath.toLowerCase().trim();
     if (path.length > 1 && path.endsWith('/')) {
@@ -37,12 +37,22 @@ export function useRouter() {
       return { path: '/' };
     }
 
+    if (path === '/compress') {
+      return { path: '/compress', category: 'pdf' };
+    }
+
+    if (path === '/convert') {
+      return { path: '/convert' };
+    }
+
     if (path === '/tools') {
       return { path: '/tools' };
     }
 
     if (path.startsWith('/tools/')) {
-      const slug = path.replace('/tools/', '');
+      let slug = path.replace('/tools/', '');
+      // Alias handling for common tool URLs
+      if (slug === 'pdf-compressor') slug = 'compress-pdf';
       return { path: '/tools/:slug', slug };
     }
 
@@ -55,7 +65,18 @@ export function useRouter() {
       return { path: '/blog/:slug', slug };
     }
 
-    if (['/privacy', '/terms', '/about', '/contact'].includes(path)) {
+    if (
+      [
+        '/privacy',
+        '/terms',
+        '/about',
+        '/contact',
+        '/capabilities',
+        '/status',
+        '/verification',
+        '/cookies',
+      ].includes(path)
+    ) {
       return { path };
     }
 

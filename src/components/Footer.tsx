@@ -75,12 +75,27 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </ul>
           </div>
 
-          {/* Trust & Company Links */}
+          {/* Trust & System Inspection Links */}
           <div className="space-y-3">
             <h4 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-200">
-              Trust & Security
+              Inspection & Compliance
             </h4>
             <ul className="space-y-2 font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              <li>
+                <a href="/capabilities" onClick={(e) => handleLinkClick(e, '/capabilities')} className="hover:text-brand-500 transition-colors">
+                  System Capabilities
+                </a>
+              </li>
+              <li>
+                <a href="/status" onClick={(e) => handleLinkClick(e, '/status')} className="hover:text-brand-500 transition-colors">
+                  System Operational Status
+                </a>
+              </li>
+              <li>
+                <a href="/verification" onClick={(e) => handleLinkClick(e, '/verification')} className="hover:text-brand-500 transition-colors">
+                  Reviewer Verification Guide
+                </a>
+              </li>
               <li>
                 <a href="/about" onClick={(e) => handleLinkClick(e, '/about')} className="hover:text-brand-500 transition-colors">
                   About FileForge Engine
@@ -88,7 +103,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <a href="/privacy" onClick={(e) => handleLinkClick(e, '/privacy')} className="hover:text-brand-500 transition-colors">
-                  Privacy Policy & Data Security
+                  Privacy Policy & Security
+                </a>
+              </li>
+              <li>
+                <a href="/cookies" onClick={(e) => handleLinkClick(e, '/cookies')} className="hover:text-brand-500 transition-colors">
+                  Cookie & Telemetry Policy
                 </a>
               </li>
               <li>
@@ -116,6 +136,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </a>
             <a href="/terms" onClick={(e) => handleLinkClick(e, '/terms')} className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
               Terms
+            </a>
+            <a href="/cookies" onClick={(e) => handleLinkClick(e, '/cookies')} className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+              Cookies
             </a>
             <a href="/contact" onClick={(e) => handleLinkClick(e, '/contact')} className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
               Contact

@@ -1,5 +1,6 @@
-# FileForge — Comprehensive Technical & Architectural Audit (`PROJECT_AUDIT.md`)
+# FileForge — Technical Architecture & V2 Audit Report (`PROJECT_AUDIT.md`)
 
+**Audit Version**: 2.0.0  
 **Date of Audit**: August 25, 2026  
 **Application Name**: FileForge — File Compression & Converter  
 **Live Production URL**: [https://file-compression-and-converter.vercel.app/](https://file-compression-and-converter.vercel.app/)  
@@ -24,7 +25,7 @@ FileForge is a production web application built using **React 18**, **TypeScript
 
 ---
 
-## 2. Supported Tools & Format Matrix
+## 2. Supported Tools & Format Matrix (18 Registered Tools)
 
 | Tool ID | Public Route Slug | Processing Mode | Inputs | Outputs | Purpose / Optimization |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -49,56 +50,15 @@ FileForge is a production web application built using **React 18**, **TypeScript
 
 ---
 
-## 3. Public Route Hierarchy
+## 3. Public Machine Endpoints & Route Hierarchy
 
-- `/` — Homepage featuring popular tool shortcuts, category filter, AI workflow explanation, and main dropzone workspace.
-- `/compress` — Pre-filtered workspace view dedicated to file compression.
-- `/convert` — Pre-filtered workspace view dedicated to format conversion.
-- `/tools` — Searchable index directory of all 18 tools with category filtering.
-- `/tools/:slug` — Individual landing pages for each tool (e.g. `/tools/pdf-to-markdown`, `/tools/image-compressor`, `/tools/pdf-compressor`).
-- `/blog` & `/blog/:slug` — Educational articles on document token optimization and image web performance.
-- `/privacy` — Comprehensive privacy policy covering local execution, ephemeral RAM serverless handling, zero retention, and telemetry specifications.
-- `/terms` — Terms of Service and acceptable usage policies.
-- `/about` — Technical architecture and engineering explanation of FileForge.
-- `/contact` — Support and feedback submission interface.
-
----
-
-## 4. File Size Limits & Technical Guardrails
-
-- **Free Tier Client Limit**: 50 MB per file.
-- **Free Tier Serverless PDF Limit**: 25 MB per request (matches Vercel Serverless Function payload boundaries).
-- **Pro Entitlement Limit** (gated via `entitlements.ts`): 200 MB per file.
-- **Batch Processing Limit**: Up to 10 files queued simultaneously per session.
-
----
-
-## 5. Security & Privacy Audit Findings
-
-1. **Input Sanitization**:
-   - Filenames are sanitized using regex (`.replace(/[^a-zA-Z0-9_.-]/g, '_')`) to eliminate directory traversal vectors and shell command injections.
-2. **RAM Ephemeral Execution**:
-   - Node.js serverless functions use in-memory Buffer streams. Files are not saved to `/tmp` or persistent disk storage.
-3. **CORS & Crawler Access**:
-   - Implemented `Access-Control-Allow-Origin: *` and `X-Robots-Tag: index, follow, max-image-preview:large` in `vercel.json`.
-4. **Zero Script Injection Risk**:
-   - Non-printable characters and scripts are stripped from document text extraction outputs.
-
----
-
-## 6. Dependency & Bundle Analysis
-
-- **Core UI**: `react` 19, `react-dom` 19, `lucide-react`, `tailwindcss` 4.
-- **File Utilities**: `pdf-lib`, `jspdf`, `mammoth`, `marked`, `xlsx`, `jszip`, `unpdf`, `docx`.
-- **Build System**: `vite` 8, `typescript` 6.
-- **Audit Conclusion**: Zero unused heavy dependencies found. Build size optimized with dynamic chunking.
-
----
-
-## 7. Recommended Production Enhancements
-
-1. **Machine-Readable Endpoints**: Expose `/api/health` and `/api/capabilities` for automated QA systems and AI tools.
-2. **Product Specification File**: Maintain a synchronized `PRODUCT_SPEC.json` file.
-3. **Automated Audit Suite**: Provide `npm run audit` script for CI pipeline verification.
-4. **Verification Document**: Create `VERIFICATION.md` detailing reviewer test instructions.
-5. **Implementation Report**: Create `IMPLEMENTATION_REPORT.md` documenting final quality standards.
+- `/api/health` — Public status, version (`1.0.0`), and timestamp JSON.
+- `/api/capabilities` — Public machine catalog JSON detailing tools, format matrix, size limits, and processing modes.
+- `/api/audit` — Public safe check status JSON.
+- `/PRODUCT_SPEC.json` — Static product specification JSON.
+- `/routes.json` — Static public route manifest JSON.
+- `/capabilities` — Human-readable tools, format matrix, size limits, and requirements page.
+- `/status` — Live operational status and subsystem health indicator page.
+- `/verification` — Reviewer test guide and capabilities index page.
+- `/cookies` — Cookie, telemetry, and local storage policy page.
+- `/privacy`, `/terms`, `/about`, `/contact` — Legal & company pages.

@@ -12,6 +12,10 @@ import { ToolView } from './components/views/ToolView';
 import { BlogView } from './components/views/BlogView';
 import { BlogPostView } from './components/views/BlogPostView';
 import { LegalView } from './components/views/LegalView';
+import { CapabilitiesView } from './components/views/CapabilitiesView';
+import { StatusView } from './components/views/StatusView';
+import { VerificationView } from './components/views/VerificationView';
+import { CookiesView } from './components/views/CookiesView';
 
 // Config & Data
 import { getToolBySlug } from './config/tools';
@@ -24,6 +28,8 @@ const App: React.FC = () => {
   const renderView = () => {
     switch (route.path) {
       case '/':
+      case '/compress':
+      case '/convert':
         return <HomeView onNavigate={navigate} />;
 
       case '/tools':
@@ -47,6 +53,18 @@ const App: React.FC = () => {
         }
         return <BlogView onNavigate={navigate} />;
       }
+
+      case '/capabilities':
+        return <CapabilitiesView />;
+
+      case '/status':
+        return <StatusView />;
+
+      case '/verification':
+        return <VerificationView />;
+
+      case '/cookies':
+        return <CookiesView />;
 
       case '/privacy':
         return <LegalView type="privacy" onNavigate={navigate} />;

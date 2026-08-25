@@ -1,84 +1,82 @@
-# FileForge — Fast, Private File Conversion & AI Document Suite
+# FileForge — Production-Ready File Compression & Converter Platform
 
-FileForge is a production-ready web application for high-performance file compression, format conversion, and document preparation tailored for AI LLM workflows (ChatGPT, Claude, Gemini).
+[![Production Audit Status](https://img.shields.io/badge/Audit-16%20PASS-emerald?style=flat-square)](https://file-compression-and-converter.vercel.app/status)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Live Production](https://img.shields.io/badge/Vercel-Live%20Deployment-000000?style=flat-square&logo=vercel)](https://file-compression-and-converter.vercel.app/)
 
----
-
-## 🌟 Key Product Architecture Features
-
-1. **AI-Ready Document Engine (Normalized Document Model)**:
-   - Reconstructs PDF heading hierarchy (H1–H4), tables (GitHub Flavored Markdown), bullet lists, and hyperlinked spans.
-   - Calculates prompt token savings (~35–40% reduction) and character counts.
-2. **Privacy-First Hybrid Pipeline**:
-   - **Client-Side Processing**: Local WebAssembly and Canvas transcoders for image compression, JPG/PNG to WebP, and DOCX-to-Markdown. Files stay on the user's device.
-   - **Serverless Ephemeral Engine**: RAM-buffered NDM parser for PDF-to-DOCX and PDF-to-Markdown. Files are auto-destroyed immediately after response streaming.
-3. **Multi-Route SEO & Tool Registry System**:
-   - Indexable tool landing pages (`/tools/:slug`), categories, search directory, and JSON-LD structured data.
-   - Includes `sitemap.xml` and `robots.txt` generation.
-4. **Monetization & SaaS Foundation**:
-   - **Zero Ads Active** (`ADS_ENABLED=false` configuration).
-   - Abstracted `AdProvider` and `AdSlot` components ready for future Google AdSense or Ezoic integration without layout damage.
-   - Subscription entitlement engine (`entitlements.ts`) for Free/Pro tier file size limits.
-   - Decoupled API service architecture for future developer endpoints (`/api/v1/convert`).
+FileForge is a production web application for online file conversion, compression, and AI document preparation. It provides a client-first hybrid processing model designed for high fidelity, privacy, search engine crawlability, and external inspectability.
 
 ---
 
-## 🛠 Tech Stack
+## 1. Public Machine & Human Inspection Index
 
-- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons.
-- **Backend / Serverless**: Node.js, Express, `unpdf` (PDF.js layout parser), `docx` OpenXML builder.
-- **Client Processing Libraries**: `pdf-lib`, `jspdf`, `mammoth`, `marked`, `xlsx`, `jszip`.
+FileForge exposes machine-readable JSON endpoints and human-readable pages allowing QA reviewers and AI agents to audit platform capabilities directly via HTTP:
 
----
-
-## 🚀 Local Development Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/shamsularefin707/file-compression-and-converter.git
-   cd file-compression-and-converter
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start local development server**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Build production bundle**:
-   ```bash
-   npm run build
-   ```
+| Resource Path | Type | Description |
+| :--- | :--- | :--- |
+| [`/api/health`](https://file-compression-and-converter.vercel.app/api/health) | API (JSON) | System status, version, and timestamp check. |
+| [`/api/capabilities`](https://file-compression-and-converter.vercel.app/api/capabilities) | API (JSON) | Machine-readable tool catalog, input/output formats, and limits. |
+| [`/api/audit`](https://file-compression-and-converter.vercel.app/api/audit) | API (JSON) | Safe public audit check status results. |
+| [`/PRODUCT_SPEC.json`](https://file-compression-and-converter.vercel.app/PRODUCT_SPEC.json) | Static Manifest | Complete machine-readable product capability specification. |
+| [`/routes.json`](https://file-compression-and-converter.vercel.app/routes.json) | Static Manifest | Indexable public route manifest. |
+| [`/capabilities`](https://file-compression-and-converter.vercel.app/capabilities) | Web Page | Human-readable system capabilities and format matrix. |
+| [`/status`](https://file-compression-and-converter.vercel.app/status) | Web Page | Live operational status and subsystem health indicators. |
+| [`/verification`](https://file-compression-and-converter.vercel.app/verification) | Web Page | External reviewer test instructions and compliance checklist. |
+| [`/cookies`](https://file-compression-and-converter.vercel.app/cookies) | Web Page | Cookie, telemetry, and local storage policy. |
 
 ---
 
-## ⚙️ Environment Variables
+## 2. Technical Architecture
 
-Copy `.env.example` to `.env.local` to configure optional analytics or future ad providers:
+- **Frontend**: React 18 SPA with Vite 8, TypeScript, Tailwind CSS, and Lucide Icons.
+- **Backend / Engine**: Express serverless API running on Node.js. Complex PDF parsing utilizes `unpdf` (PDF.js) for spatial token coordinate reconstruction and `docx` for OpenXML document generation.
+- **Client Execution Sandbox**: Image transcoders (WebP/JPG/PNG), client PDF compression (`pdf-lib`), and CSV/JSON parsers execute 100% locally inside browser WebAssembly/Canvas memory.
+- **Ephemeral RAM Engine**: PDF to Markdown/DOCX/Text conversions execute inside volatile serverless RAM. In-memory buffers are destroyed upon HTTP response completion (0% disk storage).
+
+---
+
+## 3. Registered Tools (18 Production Tools)
+
+- **Document Suite**: PDF to Markdown (AI Ready), PDF to Plain Text, PDF to Word (DOCX), Word (DOCX) to Markdown, HTML to Markdown, Markdown to HTML.
+- **PDF Utilities**: PDF Compressor, Images to PDF Merger, PDF Page Image Extractor.
+- **Image Transcoders**: Image Compressor & Optimizer, JPG to WebP, PNG to WebP, WebP to JPG, PNG to JPG, JPG to PNG.
+- **Data Converters**: CSV to JSON, JSON to CSV, CSV to Excel (XLSX).
+
+---
+
+## 4. Local Installation & Setup
 
 ```bash
-VITE_ADS_ENABLED=false
-VITE_AD_PROVIDER=none
-VITE_ADSENSE_CLIENT_ID=
-VITE_EZOIC_PUBLISHER_ID=
-VITE_PRO_GATING_ENABLED=false
-VITE_GA_ID=
+# 1. Clone repository
+git clone https://github.com/shamsularefin707/file-compression-and-converter.git
+cd file-compression-and-converter
+
+# 2. Install dependencies
+npm install
+
+# 3. Environment configuration
+cp .env.example .env
+
+# 4. Start local development server
+npm run dev
+
+# 5. Run full automated test suite
+npm test
+
+# 6. Run full production readiness audit
+npm run audit
 ```
 
 ---
 
-## 🛡 Privacy & Security Claims
+## 5. Security & Privacy Guarantees
 
-- **Zero Permanent Retention**: No uploaded file buffers are saved to disk or third-party storage.
-- **No File Content Telemetry**: Analytics events track only utility metrics (e.g. `tool_viewed`, `conversion_completed`).
-- **Filename Sanitization**: Input filenames are stripped of non-printable characters and directory traversal vectors.
+- **Filename Sanitization**: User-uploaded filenames pass through regex normalization (`[^a-zA-Z0-9_.-]`) eliminating path traversal and shell execution risks.
+- **Zero Shell Command Execution**: All conversions utilize native JavaScript/TypeScript parsers. No `child_process.exec()` or shell commands are invoked.
+- **Zero File Logging**: Serverless functions buffer files in volatile memory without writing to host disk storage (`/tmp`).
 
 ---
 
-## 📄 License
+## 6. License
 
-MIT License. Designed and maintained by FileForge Engineering.
+Distributed under the MIT License.

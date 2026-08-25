@@ -611,9 +611,34 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
     // Process sequentially so page doesn't lag
     for (let i = 0; i < itemsToProcess.length; i++) {
       const item = itemsToProcess[i];
+      const ext = getFileExtension(item.name);
+      let statusText = 'Processing...';
+
+      if (item.action === 'compress') {
+        if (ext === 'pdf') {
+          statusText = 'Loading PDF tools...';
+        } else if (ext === 'zip') {
+          statusText = 'Loading ZIP tools...';
+        } else {
+          statusText = 'Compressing image...';
+        }
+      } else {
+        // conversion
+        if (ext === 'pdf') {
+          statusText = 'Contacting backend converter...';
+        } else if (['png', 'jpg', 'jpeg', 'webp', 'avif'].includes(ext)) {
+          statusText = `Converting to ${item.targetFormat?.toUpperCase()}...`;
+        } else if (ext === 'docx') {
+          statusText = 'Loading DOCX converter...';
+        } else if (ext === 'xlsx' || ext === 'csv' || ext === 'json') {
+          statusText = 'Loading Spreadsheet tools...';
+        } else if (ext === 'md') {
+          statusText = 'Loading Markdown tools...';
+        }
+      }
       
       // Update status to processing
-      setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'processing', progress: 30 } : q));
+      setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'processing', progress: 30, statusText } : q));
       
       // Artificial delay for progress feel
       await new Promise(r => setTimeout(r, 400));
@@ -1056,7 +1081,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo }) => {
                         <div className="flex flex-col items-end gap-1.5">
                           <span className="text-xs font-semibold text-brand-500 flex items-center gap-1">
                             <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            <span>Processing</span>
+                            <span>{item.statusText || 'Processing'}</span>
                           </span>
                           <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                             <div className="h-full bg-brand-500 rounded-full animate-[progress_1s_ease-in-out_infinite]" style={{ width: '60%' }} />

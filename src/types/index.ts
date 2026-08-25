@@ -33,6 +33,7 @@ export interface FileItem {
   targetFormat?: string; // e.g. 'png', 'jpg', 'webp', 'pdf', 'json', 'csv', etc.
   savingsPercent?: number;
   requiresAd?: boolean;
+  statusText?: string;
 }
 
 export interface FAQItem {

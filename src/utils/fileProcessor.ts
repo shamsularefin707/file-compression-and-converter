@@ -1,9 +1,3 @@
-import JSZip from 'jszip';
-import { PDFDocument } from 'pdf-lib';
-import { jsPDF } from 'jspdf';
-import mammoth from 'mammoth';
-import { marked } from 'marked';
-import * as XLSX from 'xlsx';
 import type { CompressionSettings } from '../types';
 
 // Helper to load image URL into HTMLImageElement
@@ -106,6 +100,7 @@ export async function compressPdfFile(
   file: File,
   _level: 'low' | 'medium' | 'high'
 ): Promise<Blob> {
+  const { PDFDocument } = await import('pdf-lib');
   const arrayBuffer = await file.arrayBuffer();
   const pdfDoc = await PDFDocument.load(arrayBuffer);
   
@@ -121,6 +116,7 @@ export async function compressPdfFile(
  * Creates a ZIP file containing multiple files.
  */
 export async function createZipArchive(files: { name: string; blob: Blob }[]): Promise<Blob> {
+  const { default: JSZip } = await import('jszip');
   const zip = new JSZip();
   files.forEach((f) => {
     zip.file(f.name, f.blob);
@@ -132,6 +128,7 @@ export async function createZipArchive(files: { name: string; blob: Blob }[]): P
  * Extracts files from a ZIP archive.
  */
 export async function extractZipArchive(file: File): Promise<{ name: string; blob: Blob }[]> {
+  const { default: JSZip } = await import('jszip');
   const zip = new JSZip();
   const contents = await zip.loadAsync(file);
   const extractedFiles: { name: string; blob: Blob }[] = [];
@@ -216,6 +213,7 @@ export function jsonToCsv(jsonText: string): string {
  * Converts XLSX spreadsheet file to CSV.
  */
 export async function xlsxToCsv(file: File): Promise<string> {
+  const XLSX = await import('xlsx');
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data, { type: 'array' });
   const firstSheetName = workbook.SheetNames[0];
@@ -227,6 +225,7 @@ export async function xlsxToCsv(file: File): Promise<string> {
  * Converts CSV file to XLSX format.
  */
 export async function csvToXlsx(file: File): Promise<Blob> {
+  const XLSX = await import('xlsx');
   const text = await file.text();
   const workbook = XLSX.read(text, { type: 'string' });
   const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -237,6 +236,7 @@ export async function csvToXlsx(file: File): Promise<Blob> {
  * Converts HTML string to a styled PDF Blob.
  */
 export async function htmlToPdfBlob(htmlString: string): Promise<Blob> {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
   doc.setFont('helvetica', 'normal');
 
@@ -322,6 +322,7 @@ export async function htmlToPdfBlob(htmlString: string): Promise<Blob> {
  * Converts DOCX file to HTML.
  */
 export async function docxToHtml(file: File): Promise<string> {
+  const { default: mammoth } = await import('mammoth');
   const arrayBuffer = await file.arrayBuffer();
   const result = await mammoth.convertToHtml({ arrayBuffer });
   return result.value;
@@ -331,6 +332,7 @@ export async function docxToHtml(file: File): Promise<string> {
  * Converts Markdown file to HTML.
  */
 export async function markdownToHtml(file: File): Promise<string> {
+  const { marked } = await import('marked');
   const text = await file.text();
   const html = await marked.parse(text);
   return html;
@@ -340,6 +342,7 @@ export async function markdownToHtml(file: File): Promise<string> {
  * Converts plain TXT to PDF.
  */
 export async function txtToPdf(file: File): Promise<Blob> {
+  const { jsPDF } = await import('jspdf');
   const text = await file.text();
   const doc = new jsPDF();
   doc.setFont('helvetica', 'normal');

@@ -4,7 +4,7 @@ import { Breadcrumbs } from '../layout/Breadcrumbs';
 import { ToolCard } from '../tools/ToolCard';
 import { TOOLS, TOOL_CATEGORIES } from '../../config/tools';
 import { SITE_CONFIG } from '../../config/site';
-import { Search } from 'lucide-react';
+import { Search, Sparkles } from 'lucide-react';
 
 interface ToolsDirectoryViewProps {
   onNavigate: (path: string) => void;
@@ -24,26 +24,49 @@ export const ToolsDirectoryView: React.FC<ToolsDirectoryViewProps> = ({ onNaviga
     return matchesSearch && matchesCategory;
   });
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    'name': `All File Tools & Converters | ${SITE_CONFIG.name}`,
+    'description': 'Browse all 18 online file tools: PDF to Markdown, PDF to DOCX, image compressor, JPG to WebP, and document converters.',
+    'url': 'https://file-compression-and-converter.vercel.app/tools',
+    'mainEntity': {
+      '@type': 'ItemList',
+      'numberOfItems': TOOLS.length,
+      'itemListElement': TOOLS.map((tool, idx) => ({
+        '@type': 'ListItem',
+        'position': idx + 1,
+        'name': tool.name,
+        'url': `https://file-compression-and-converter.vercel.app/tools/${tool.slug}`,
+      })),
+    },
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
       <SEOHead
-        title={`All Conversion & Compression Tools | ${SITE_CONFIG.name}`}
-        description="Browse all free online file tools: PDF to Markdown, PDF to DOCX, image compressor, JPG to WebP, and document utilities."
-        keywords={['file tools directory', 'pdf converter list', 'image tools', 'ai document tools']}
+        title={`All 18 Online File Converters & Tools | ${SITE_CONFIG.name}`}
+        description="Browse all 18 free online file tools: PDF to Markdown, PDF to DOCX, image compressor, JPG to WebP, and document utilities."
+        keywords={['file tools directory', 'pdf converter list', 'image compression tools', 'ai document converters']}
+        jsonLd={jsonLd}
       />
 
       <Breadcrumbs items={[{ label: 'All Tools' }]} />
 
       <header className="my-6">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-2">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Complete Tools Directory</span>
+        </div>
         <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Tools Directory
+          FileForge Utilities Suite
         </h1>
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2 max-w-2xl">
-          Fast, private, browser-based conversion and compression utilities.
+        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2 max-w-3xl leading-relaxed">
+          Fast, browser-first conversion and compression engines. Strip binary noise from PDFs, optimize graphics for Core Web Vitals, and prepare documents for AI LLM prompts.
         </p>
       </header>
 
-      {/* Search & Filter Bar */}
+      {/* Search & Category Filter */}
       <div className="my-6 flex flex-col sm:flex-row items-center gap-3">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -83,7 +106,7 @@ export const ToolsDirectoryView: React.FC<ToolsDirectoryViewProps> = ({ onNaviga
         </div>
       </div>
 
-      {/* Tool Grid */}
+      {/* Tools Grid */}
       {filteredTools.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
           {filteredTools.map((tool) => (

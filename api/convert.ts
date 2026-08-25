@@ -216,9 +216,11 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
 
         const x = item.transform[4];
         const y = item.transform[5];
-        const w = item.width;
-        const h = item.transform[3] || item.transform[0];
-        const fontSize = Math.abs(h);
+        const h = item.transform[3] || item.transform[0] || 10;
+        const fontSize = Math.abs(h) || 10;
+        const w = (typeof item.width === 'number' && !isNaN(item.width) && item.width > 0) 
+          ? item.width 
+          : (str ? str.length * (fontSize * 0.5) : 0);
 
         // Styling cues from resolved FontFaceObject
         let isBold = false;

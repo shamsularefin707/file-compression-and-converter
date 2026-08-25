@@ -53,6 +53,7 @@ const requiredFiles = [
   { path: 'api/health.ts', desc: 'Health API endpoint (/api/health)' },
   { path: 'api/capabilities.ts', desc: 'Capabilities API endpoint (/api/capabilities)' },
   { path: 'api/audit.ts', desc: 'Audit API endpoint (/api/audit)' },
+  { path: 'api/stats.ts', desc: 'Stats & Telemetry API endpoint (/api/stats)' },
   { path: '.env.example', desc: 'Environment configuration template' },
 ];
 

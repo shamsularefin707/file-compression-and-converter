@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
-import { PDFParse } from 'pdf-parse';
+import { getDocumentProxy, extractText } from 'unpdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 const app = express();
@@ -37,10 +37,10 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       return res.status(400).json({ error: 'Only PDF files are supported for backend conversion.' });
     }
 
-    // Extract text from the PDF file using pdf-parse PDFParse
-    const parser = new PDFParse({ data: new Uint8Array(file.buffer) });
-    const pdfData = await parser.getText();
-    const text = pdfData.text || '';
+    // Extract text from the PDF file using unpdf
+    const pdf = await getDocumentProxy(new Uint8Array(file.buffer));
+    const extraction = await extractText(pdf);
+    const text = Array.isArray(extraction.text) ? extraction.text.join('\n\n') : (extraction.text || '');
 
     const baseName = file.originalname.substring(0, file.originalname.lastIndexOf('.')) || 'document';
 

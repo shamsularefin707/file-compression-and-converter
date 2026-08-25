@@ -40,6 +40,9 @@ export interface FileItem {
     headings: number;
     tables: number;
     links: number;
+    isMultiColumn?: boolean;
+    isScanned?: boolean;
+    confidenceScore?: number;
     warnings: string[];
   };
 }

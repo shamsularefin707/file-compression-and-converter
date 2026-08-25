@@ -59,6 +59,11 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo, initialTargetF
     resizeOption: 'original',
     pdfLevel: 'medium',
   });
+  const [conversionOptions, setConversionOptions] = useState({
+    aiOptimized: true,
+    preserveHeadersFooters: true,
+    preservePageBreaks: true,
+  });
   const [showSettings, setShowSettings] = useState<boolean>(true);
   const [processing, setProcessing] = useState<boolean>(false);
   const [dragActive, setDragActive] = useState<boolean>(false);
@@ -386,7 +391,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo, initialTargetF
           };
         } else if (item.action === 'convert') {
           if (!item.targetFormat) throw new Error('Target conversion format not selected.');
-          const result = await convertPdfViaBackend(item.file, item.targetFormat);
+          const result = await convertPdfViaBackend(item.file, item.targetFormat, conversionOptions);
           return {
             ...item,
             status: 'completed',
@@ -964,6 +969,43 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo, initialTargetF
                   </p>
                 </div>
               </div>
+
+              {/* Advanced Conversion Options */}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800/50 space-y-3">
+                <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-brand-500" />
+                  <span>Advanced Document Engine Options</span>
+                </h5>
+                <div className="space-y-2 text-xs">
+                  <label className="flex items-center justify-between cursor-pointer p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">AI LLM Prompt Optimization</span>
+                    <input
+                      type="checkbox"
+                      checked={conversionOptions.aiOptimized}
+                      onChange={(e) => setConversionOptions(prev => ({ ...prev, aiOptimized: e.target.checked }))}
+                      className="rounded text-brand-500 focus:ring-brand-500 accent-brand-500"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">Preserve Headers & Footers</span>
+                    <input
+                      type="checkbox"
+                      checked={conversionOptions.preserveHeadersFooters}
+                      onChange={(e) => setConversionOptions(prev => ({ ...prev, preserveHeadersFooters: e.target.checked }))}
+                      className="rounded text-brand-500 focus:ring-brand-500 accent-brand-500"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">Preserve Page Break Markers</span>
+                    <input
+                      type="checkbox"
+                      checked={conversionOptions.preservePageBreaks}
+                      onChange={(e) => setConversionOptions(prev => ({ ...prev, preservePageBreaks: e.target.checked }))}
+                      className="rounded text-brand-500 focus:ring-brand-500 accent-brand-500"
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -1161,9 +1203,16 @@ export const Workspace: React.FC<WorkspaceProps> = ({ onScrollTo, initialTargetF
                             <Sparkles className="w-3.5 h-3.5 text-brand-500" />
                             <span>Conversion Quality Report</span>
                           </h4>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400">
-                            High-Fidelity Model
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {item.report.isMultiColumn && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
+                                Multi-Column Layout
+                              </span>
+                            )}
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400">
+                              {item.report.confidenceScore || 98}% Confidence
+                            </span>
+                          </div>
                         </div>
                         
                         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">

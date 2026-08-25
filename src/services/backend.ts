@@ -1,7 +1,12 @@
 /**
  * FileForge Backend Services API Wrapper
- * This module is kept modular to facilitate future server-side connections (e.g. Node.js or Python).
  */
+
+export interface BackendConversionOptions {
+  aiOptimized?: boolean;
+  preserveHeadersFooters?: boolean;
+  preservePageBreaks?: boolean;
+}
 
 export interface BackendConversionResponse {
   blob: Blob;
@@ -13,6 +18,9 @@ export interface BackendConversionResponse {
     headings: number;
     tables: number;
     links: number;
+    isMultiColumn?: boolean;
+    isScanned?: boolean;
+    confidenceScore?: number;
     warnings: string[];
   };
 }
@@ -22,11 +30,15 @@ export interface BackendConversionResponse {
  */
 export async function convertPdfViaBackend(
   file: File,
-  targetFormat: string
+  targetFormat: string,
+  options?: BackendConversionOptions
 ): Promise<BackendConversionResponse> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('targetFormat', targetFormat);
+  if (options) {
+    formData.append('options', JSON.stringify(options));
+  }
 
   try {
     const response = await fetch('/api/convert', {
@@ -73,4 +85,3 @@ export async function convertPdfViaBackend(
     throw new Error(error.message || 'Failed to convert PDF file. Please ensure the backend server is running.');
   }
 }
-

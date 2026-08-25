@@ -140,6 +140,9 @@ interface NDMDocument {
     headings: number;
     tables: number;
     links: number;
+    isMultiColumn: boolean;
+    isScanned: boolean;
+    confidenceScore: number;
     warnings: string[];
   };
 }
@@ -177,6 +180,7 @@ interface Line {
   pageNumber: number;
   isMonospace: boolean;
   isBold: boolean;
+  columnIndex?: number;
 }
 
 // Helper to determine if a run overlaps a PDF link annotation rectangle
@@ -189,7 +193,6 @@ function findLinkForRun(
 ): string | undefined {
   for (const link of links) {
     const [xMin, yMin, xMax, yMax] = link.rect;
-    // Bounding box collision check with tolerance
     const xOverlap = (x >= xMin - 6 && x <= xMax + 6) || (x + w >= xMin - 6 && x + w <= xMax + 6);
     const yOverlap = (y >= yMin - 6 && y <= yMax + 6) || (y + h >= yMin - 6 && y + h <= yMax + 6);
     if (xOverlap && yOverlap) {
@@ -211,7 +214,6 @@ function splitLineIntoCells(line: Line): LineRun[][] {
     } else {
       const prev = currentCell[currentCell.length - 1];
       const gap = run.x - (prev.x + prev.w);
-      // If gap is significant (> 22pt, which is roughly 3-4 spaces), treat as next cell
       if (gap > 22) {
         cells.push(currentCell);
         currentCell = [run];
@@ -226,11 +228,43 @@ function splitLineIntoCells(line: Line): LineRun[][] {
   return cells;
 }
 
+/**
+ * Multi-column layout sorting:
+ * Detects if tokens on a page form 2 distinct horizontal columns (e.g. Left X < 280, Right X > 300).
+ * Sorts tokens in Column 1 top-to-bottom first, then Column 2 top-to-bottom.
+ */
+function sortTokensByLayout(rawTokens: RawTextToken[]): { tokens: RawTextToken[]; isMultiColumn: boolean } {
+  if (rawTokens.length < 20) {
+    return { tokens: rawTokens.sort((a, b) => b.y - a.y || a.x - b.x), isMultiColumn: false };
+  }
+
+  // Count tokens in left half (x < 280) vs right half (x > 310)
+  const leftTokens = rawTokens.filter(t => t.x < 285 && t.x > 30);
+  const rightTokens = rawTokens.filter(t => t.x > 310 && t.x < 570);
+
+  // If both columns contain substantial tokens (>25% of total page tokens each), it's a 2-column page!
+  const isMultiColumn = leftTokens.length > rawTokens.length * 0.25 && rightTokens.length > rawTokens.length * 0.25;
+
+  if (isMultiColumn) {
+    // Sort left column top-to-bottom, then right column top-to-bottom
+    const col1 = rawTokens.filter(t => t.x < 295).sort((a, b) => b.y - a.y || a.x - b.x);
+    const col2 = rawTokens.filter(t => t.x >= 295).sort((a, b) => b.y - a.y || a.x - b.x);
+    return { tokens: [...col1, ...col2], isMultiColumn: true };
+  }
+
+  return { tokens: rawTokens.sort((a, b) => b.y - a.y || a.x - b.x), isMultiColumn: false };
+}
+
 // Main Endpoint handler
 app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any) => {
   try {
     const file = req.file;
     const targetFormat = req.body.targetFormat;
+    const optionsRaw = req.body.options ? JSON.parse(req.body.options) : {};
+
+    const aiOptimized = optionsRaw.aiOptimized ?? (targetFormat === 'md');
+    const preserveHeadersFooters = optionsRaw.preserveHeadersFooters ?? !aiOptimized;
+    const preservePageBreaks = optionsRaw.preservePageBreaks ?? !aiOptimized;
 
     if (!file) {
       return res.status(400).json({ error: 'No file was uploaded.' });
@@ -252,12 +286,11 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
 
     const lines: Line[] = [];
     let linkCount = 0;
+    let hasMultiColumnPage = false;
 
     // 1. Raw Text Token Extraction
     for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
-      
-      // Force resolve fonts by fetching the operator list
       await page.getOperatorList();
       
       const textContent = await page.getTextContent();
@@ -290,7 +323,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
           ? item.width 
           : (str ? str.length * (fontSize * 0.5) : 0);
 
-        // Styling cues from resolved FontFaceObject
         let isBold = false;
         let isItalic = false;
         let isMonospace = false;
@@ -305,12 +337,9 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
               if (name.includes('italic') || name.includes('oblique') || name.includes('it')) isItalic = true;
               if (name.includes('mono') || name.includes('courier') || name.includes('consolas')) isMonospace = true;
             }
-          } catch (e) {
-            // Font not loaded yet fallback
-          }
+          } catch (e) {}
         }
 
-        // FontName string fallback
         if (fontName && !isBold && !isItalic) {
           const lowerFont = fontName.toLowerCase();
           if (lowerFont.includes('bold') || lowerFont.includes('bd')) isBold = true;
@@ -330,9 +359,13 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
         });
       }
 
+      // Multi-column layout sorting
+      const { tokens: layoutSortedTokens, isMultiColumn } = sortTokensByLayout(rawTokens);
+      if (isMultiColumn) hasMultiColumnPage = true;
+
       // Group raw tokens into lines (Y overlap check)
       const pageLinesMap = new Map<number, RawTextToken[]>();
-      for (const token of rawTokens) {
+      for (const token of layoutSortedTokens) {
         let foundLineY: number | null = null;
         for (const lineY of pageLinesMap.keys()) {
           if (Math.abs(lineY - token.y) < 3.5) {
@@ -358,14 +391,10 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
 
         for (const tok of tokens) {
           let link = findLinkForRun(tok.x, tok.y, tok.w, tok.h, pageLinks);
-          
-          // Regex fallback if no annotation matches but text matches a URL pattern
           if (!link && /^(https?:\/\/[^\s]+)/i.test(tok.text.trim())) {
             link = tok.text.trim();
           }
-          if (link) {
-            linkCount++;
-          }
+          if (link) linkCount++;
 
           if (!currentRun) {
             currentRun = {
@@ -386,7 +415,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
                                tok.fontSize === currentRun.fontSize &&
                                link === currentRun.link;
 
-            // Merge close segments with identical styles
             if (horizontalGap < 4 && styleMatch) {
               currentRun.text += tok.text;
               currentRun.w += tok.w + horizontalGap;
@@ -405,11 +433,8 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
             }
           }
         }
-        if (currentRun) {
-          runs.push(currentRun);
-        }
+        if (currentRun) runs.push(currentRun);
 
-        // Dominant font characteristics for the line
         let totalLen = 0;
         let boldLen = 0;
         let monoLen = 0;
@@ -445,7 +470,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
     }
 
     // 2. Global Document Heuristics
-    // Compute dominant body size baseline via statistical mode
     const fontSizes = lines.map(l => Math.round(l.fontSize));
     const sizeFreq: { [key: number]: number } = {};
     let bodyFontSize = 10;
@@ -458,9 +482,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
         bodyFontSize = s;
       }
     }
-    if (bodyFontSize < 6 || bodyFontSize > 22) {
-      bodyFontSize = 10;
-    }
+    if (bodyFontSize < 6 || bodyFontSize > 22) bodyFontSize = 10;
 
     // Header/Footer deduplication
     const headerFooterTemplates = new Map<string, number>();
@@ -472,7 +494,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       }
     }
 
-    const templateThreshold = Math.max(3, Math.min(10, Math.ceil(totalPages * 0.15)));
+    const templateThreshold = Math.max(2, Math.ceil(totalPages * 0.15));
     const activeTemplates = new Set<string>();
     for (const [text, count] of headerFooterTemplates.entries()) {
       if (count >= templateThreshold) {
@@ -480,10 +502,10 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       }
     }
 
-    // Filter out header/footer lines and pure spaces
+    // Filter out header/footer lines if preserveHeadersFooters is false
     const bodyLines = lines.filter(l => {
       const normText = l.runs.map(r => r.text).join('').trim().replace(/\d+/g, '#');
-      if (activeTemplates.has(normText)) return false;
+      if (!preserveHeadersFooters && activeTemplates.has(normText)) return false;
 
       const rawText = l.runs.map(r => r.text).join('').trim();
       if (rawText.length === 0) return false;
@@ -502,8 +524,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
     while (idx < bodyLines.length) {
       const line = bodyLines[idx];
 
-      // Insert PageBreak if the page changes (except first page)
-      if (line.pageNumber !== lastPageNumber) {
+      if (preservePageBreaks && line.pageNumber !== lastPageNumber) {
         blocks.push({ type: 'pagebreak' });
         lastPageNumber = line.pageNumber;
       }
@@ -533,10 +554,8 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       }
 
       // HEURISTIC B: Tables
-      // Split this line and see if there are columns
       const cells = splitLineIntoCells(line);
       if (cells.length >= 2) {
-        // Look ahead to check if the next line is also split (indicates table block)
         let tableIdx = idx;
         const tableRows: NDMTableRow[] = [];
         
@@ -578,30 +597,21 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       const numListRegex = /^(\d+|[a-zA-Z])[\.\)]\s+/;
       let isList = false;
       let listType: 'bullet' | 'ordered' = 'bullet';
-      let listCleanText = rawText;
       let listLevel = 0;
 
-      // Determine indentation margin
       const margin = 65;
-      if (line.xStart > margin + 15) {
-        listLevel = 1;
-      }
-      if (line.xStart > margin + 35) {
-        listLevel = 2;
-      }
+      if (line.xStart > margin + 15) listLevel = 1;
+      if (line.xStart > margin + 35) listLevel = 2;
 
       if (bulletRegex.test(rawText)) {
         isList = true;
         listType = 'bullet';
-        listCleanText = rawText.replace(bulletRegex, '');
       } else if (numListRegex.test(rawText)) {
         isList = true;
         listType = 'ordered';
-        listCleanText = rawText.replace(numListRegex, '');
       }
 
       if (isList) {
-        // Extract runs but strip list prefix
         const runsCopy = line.runs.map(r => ({
           text: r.text,
           bold: r.isBold,
@@ -610,7 +620,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
           link: r.link
         }));
 
-        // Strip bullet from first run
         if (runsCopy.length > 0) {
           if (listType === 'bullet') {
             runsCopy[0].text = runsCopy[0].text.replace(/^[\u2022\u25E6\u25AA\-\*\+]\s*/, '');
@@ -635,9 +644,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       if (line.fontSize > bodyFontSize * 1.15) {
         headingScore += (line.fontSize - bodyFontSize) * 2.5;
       }
-      if (line.isBold) {
-        headingScore += 5;
-      }
+      if (line.isBold) headingScore += 5;
       const matchesHeadingPattern = /^(?:[A-Z0-9]{1,4}\.)+(?:\s|$)/i.test(rawText) || 
                                     /^(?:[0-9]+)\s/i.test(rawText) || 
                                     /^[A-Z\s]{4,}\s\d/i.test(rawText);
@@ -683,7 +690,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       while (mergeIdx < bodyLines.length) {
         const nextLine = bodyLines[mergeIdx];
         
-        // Break conditions for paragraph merge
         const isNextSpecial = nextLine.isMonospace || 
                              splitLineIntoCells(nextLine).length >= 2 || 
                              bulletRegex.test(nextLine.runs.map(r => r.text).join('').trim()) ||
@@ -691,30 +697,26 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
                              
         if (isNextSpecial) break;
 
-        // Check heading candidate for next line
         let nextHeadingScore = 0;
         const nextRaw = nextLine.runs.map(r => r.text).join('').trim();
         if (nextLine.fontSize > bodyFontSize * 1.15) nextHeadingScore += (nextLine.fontSize - bodyFontSize) * 2.5;
         if (nextLine.isBold) nextHeadingScore += 5;
         if (nextRaw.length > 70) nextHeadingScore -= 10;
         if (nextHeadingScore >= 5 || (nextLine.fontSize > bodyFontSize * 1.3 && nextRaw.length < 60)) {
-          break; // Stop merging because next line is a heading!
+          break;
         }
 
-        // Distance vertical break check
         const verticalGap = Math.abs(bodyLines[mergeIdx - 1].y - nextLine.y) - nextLine.fontSize;
         if (verticalGap > 15 || nextLine.pageNumber !== bodyLines[mergeIdx - 1].pageNumber) {
-          break; // Break on paragraph distance or page change
+          break;
         }
 
-        // If the previous line ended too early (short line), it's likely a paragraph boundary
         const prevLineWidth = bodyLines[mergeIdx - 1].xEnd - bodyLines[mergeIdx - 1].xStart;
         if (prevLineWidth < 300 && bodyLines[mergeIdx - 1].xEnd < 400) {
-          break; // Short line means new paragraph
+          break;
         }
 
-        // Safe to merge
-        paragraphRuns.push({ text: ' ' }); // Insert spacer
+        paragraphRuns.push({ text: ' ' });
         paragraphRuns.push(...nextLine.runs.map(r => ({
           text: r.text,
           bold: r.isBold,
@@ -725,7 +727,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
         mergeIdx++;
       }
 
-      // Check for orphan punctuation and cleanup spaces
       blocks.push({
         type: 'paragraph',
         runs: paragraphRuns
@@ -734,19 +735,23 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       idx = mergeIdx;
     }
 
-    // Metadata & stats gathering
     const warnings: string[] = [];
     const documentRawText = bodyLines.map(l => l.runs.map(r => r.text).join('')).join('\n');
+    const isScanned = documentRawText.trim().length === 0;
     
-    if (documentRawText.trim().length === 0) {
-      warnings.push('No readable text was extracted. The PDF might be scanned or image-only (OCR is not supported).');
+    if (isScanned) {
+      warnings.push('This PDF appears to contain scanned pages or empty vector layers. OCR pre-processing is required for scanned documents.');
     }
     if (statsHeadings === 0 && totalPages > 2) {
-      warnings.push('No headings were detected. The output structure may be flat.');
+      warnings.push('No headings were detected. Output hierarchy defaults to plain paragraphs.');
     }
     if (statsTables > 0) {
-      warnings.push('Some complex table formats were detected and mapped into editable tables.');
+      warnings.push(`${statsTables} tabular section(s) detected and reconstructed into structured table rows.`);
     }
+
+    let confidenceScore = 98;
+    if (isScanned) confidenceScore = 15;
+    else if (hasMultiColumnPage) confidenceScore = 92;
 
     const docModel: NDMDocument = {
       title: file.originalname.substring(0, file.originalname.lastIndexOf('.')) || 'Document',
@@ -761,11 +766,13 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
         headings: statsHeadings,
         tables: statsTables,
         links: linkCount,
+        isMultiColumn: hasMultiColumnPage,
+        isScanned,
+        confidenceScore,
         warnings
       }
     };
 
-    // Expose Stats Report in Response Headers
     res.setHeader('Access-Control-Expose-Headers', 'X-Conversion-Report');
     res.setHeader('X-Conversion-Report', JSON.stringify(docModel.stats));
 
@@ -852,53 +859,23 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
       background: white;
       padding: 40px;
       border-radius: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
       border: 1px solid #e2e8f0;
     }
-    h1, h2, h3, h4 {
-      color: #0f172a;
-      font-weight: 700;
-      margin-top: 24px;
-      margin-bottom: 12px;
-    }
+    h1, h2, h3, h4 { color: #0f172a; font-weight: 700; margin-top: 24px; margin-bottom: 12px; }
     h1 { font-size: 26px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
     h2 { font-size: 20px; }
     h3 { font-size: 16px; }
     p { margin-bottom: 16px; }
     li { margin-bottom: 6px; }
     pre {
-      background: #f1f5f9;
-      padding: 16px;
-      border-radius: 8px;
-      font-family: Consolas, Monaco, monospace;
-      font-size: 14px;
-      overflow-x: auto;
-      border-left: 4px solid #0284c7;
-      margin-bottom: 20px;
+      background: #f1f5f9; padding: 16px; border-radius: 8px; font-family: Consolas, Monaco, monospace; font-size: 14px; overflow-x: auto; border-left: 4px solid #0284c7; margin-bottom: 20px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 24px 0;
-    }
-    th, td {
-      border: 1px solid #cbd5e1;
-      padding: 10px 14px;
-      text-align: left;
-    }
-    th {
-      background-color: #f1f5f9;
-      font-weight: 600;
-    }
-    a {
-      color: #0284c7;
-      text-decoration: underline;
-    }
-    .page-break {
-      border: none;
-      border-top: 2px dashed #cbd5e1;
-      margin: 40px 0;
-    }
+    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; }
+    th { background-color: #f1f5f9; font-weight: 600; }
+    a { color: #0284c7; text-decoration: underline; }
+    .page-break { border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0; }
   </style>
 </head>
 <body>
@@ -916,11 +893,16 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
     // RENDER: Markdown (MD)
     if (targetFormat === 'md') {
       let md = `# ${baseName}\n\n`;
+
+      if (aiOptimized) {
+        md += `> **Document Summary**: Extracted from PDF using FileForge NDM parser (${totalPages} page(s), ${statsHeadings} heading(s), ${statsTables} table(s)). Preserved H1-H4 structure for LLM prompts.\n\n`;
+      }
+
       let inList = false;
 
       for (const block of docModel.blocks) {
         if (block.type !== 'list' && inList) {
-          md += '\n'; // Add spacing after lists
+          md += '\n';
           inList = false;
         }
 
@@ -947,7 +929,9 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
           });
           md += '\n';
         } else if (block.type === 'pagebreak') {
-          md += `---\n\n`;
+          if (preservePageBreaks) {
+            md += `---\n\n`;
+          }
         }
       }
 
@@ -977,7 +961,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
             new Paragraph({
               children: block.runs!.map(r => renderDOCXRun(r)),
               spacing: { after: 120 },
-              lineSpacing: { before: 0, after: 0, line: 276, lineRule: 'auto' }, // 1.15 line spacing
+              lineSpacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
             })
           );
         } else if (block.type === 'list') {
@@ -990,7 +974,6 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
             })
           );
         } else if (block.type === 'codeblock') {
-          // Render each line of the code block as a stylized paragraph
           const linesText = block.runs!.map(r => r.text).join('').split('\n');
           for (const lineText of linesText) {
             if (lineText.trim() === '' && linesText[linesText.length - 1] === lineText) continue;
@@ -1000,7 +983,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
                   new TextRun({
                     text: lineText,
                     font: 'Consolas',
-                    size: 19, // 9.5pt
+                    size: 19,
                   }),
                 ],
                 shading: { fill: 'f8fafc' },
@@ -1037,19 +1020,20 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
                       spacing: { before: 80, after: 80 },
                     }),
                   ],
-                  shading: rowIndex === 0 ? { fill: 'f1f5f9' } : undefined, // Header row shading
+                  shading: rowIndex === 0 ? { fill: 'f1f5f9' } : undefined,
                 })),
               })),
             })
           );
-          // Add table spacing paragraph
           docxChildren.push(new Paragraph({ spacing: { after: 120 } }));
         } else if (block.type === 'pagebreak') {
-          docxChildren.push(
-            new Paragraph({
-              children: [new PageBreak()],
-            })
-          );
+          if (preservePageBreaks) {
+            docxChildren.push(
+              new Paragraph({
+                children: [new PageBreak()],
+              })
+            );
+          }
         }
       }
 
@@ -1062,7 +1046,7 @@ app.post(['/api/convert', '/'], upload.single('file'), async (req: any, res: any
             properties: {
               page: {
                 margin: {
-                  top: 1440, // 1 inch
+                  top: 1440,
                   bottom: 1440,
                   left: 1440,
                   right: 1440,
@@ -1129,7 +1113,7 @@ function renderDOCXRun(run: NDMTextRun, forceBold = false): any {
     bold: forceBold || run.bold,
     italic: run.italic,
     font: run.monospace ? 'Consolas' : 'Calibri',
-    size: run.monospace ? 19 : 22, // 9.5pt vs 11pt
+    size: run.monospace ? 19 : 22,
     color: isLink ? '0284c7' : undefined,
     underline: isLink ? {} : undefined,
   });

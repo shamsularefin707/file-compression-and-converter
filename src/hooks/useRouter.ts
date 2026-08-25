@@ -26,29 +26,32 @@ export function useRouter() {
     }
   };
 
-  // Route Parser
+  // Route Parser with trailing slash normalization
   const parseRoute = (): RouteState => {
-    const path = currentPath.toLowerCase();
+    let path = currentPath.toLowerCase().trim();
+    if (path.length > 1 && path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
 
-    if (path === '/' || path === '') {
+    if (path === '' || path === '/') {
       return { path: '/' };
     }
 
-    if (path === '/tools' || path === '/tools/') {
+    if (path === '/tools') {
       return { path: '/tools' };
     }
 
     if (path.startsWith('/tools/')) {
-      const slug = path.replace('/tools/', '').replace(/\/$/, '');
+      const slug = path.replace('/tools/', '');
       return { path: '/tools/:slug', slug };
     }
 
-    if (path === '/blog' || path === '/blog/') {
+    if (path === '/blog') {
       return { path: '/blog' };
     }
 
     if (path.startsWith('/blog/')) {
-      const slug = path.replace('/blog/', '').replace(/\/$/, '');
+      const slug = path.replace('/blog/', '');
       return { path: '/blog/:slug', slug };
     }
 

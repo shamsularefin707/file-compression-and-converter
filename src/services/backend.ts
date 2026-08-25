@@ -7,6 +7,14 @@ export interface BackendConversionResponse {
   blob: Blob;
   outputName: string;
   outputType: string;
+  report?: {
+    pages: number;
+    textBlocks: number;
+    headings: number;
+    tables: number;
+    links: number;
+    warnings: string[];
+  };
 }
 
 /**
@@ -34,6 +42,17 @@ export async function convertPdfViaBackend(
     const blob = await response.blob();
     const baseName = file.name.substring(0, file.name.lastIndexOf('.'));
     
+    // Extract custom header report
+    const reportHeader = response.headers.get('X-Conversion-Report');
+    let report;
+    if (reportHeader) {
+      try {
+        report = JSON.parse(reportHeader);
+      } catch (e) {
+        console.error('Failed to parse X-Conversion-Report header:', e);
+      }
+    }
+    
     let mimeType = 'text/plain';
     if (targetFormat === 'html') {
       mimeType = 'text/html';
@@ -47,6 +66,7 @@ export async function convertPdfViaBackend(
       blob,
       outputName: `${baseName}.${targetFormat}`,
       outputType: mimeType,
+      report,
     };
   } catch (error: any) {
     console.error('Backend conversion failed:', error);

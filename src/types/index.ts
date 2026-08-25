@@ -34,6 +34,14 @@ export interface FileItem {
   savingsPercent?: number;
   requiresAd?: boolean;
   statusText?: string;
+  report?: {
+    pages: number;
+    textBlocks: number;
+    headings: number;
+    tables: number;
+    links: number;
+    warnings: string[];
+  };
 }
 
 export interface FAQItem {

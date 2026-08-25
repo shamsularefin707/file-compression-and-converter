@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { useTheme } from './hooks/useTheme';
 import { useRouter } from './hooks/useRouter';
 import { AdProvider } from './components/ads/AdProvider';
@@ -99,6 +100,7 @@ const App: React.FC = () => {
 
         <Footer onNavigate={navigate} />
       </div>
+      <Analytics />
     </AdProvider>
   );
 };

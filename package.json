@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "@vercel/analytics": "^2.0.1",
     "cors": "^2.8.6",
     "docx": "^9.7.1",
     "express": "^5.2.1",

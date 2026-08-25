@@ -1,4 +1,4 @@
-export type ToolCategory = 'document' | 'pdf' | 'image' | 'office';
+export type ToolCategory = 'document' | 'pdf' | 'image' | 'office' | 'data';
 
 export type ProcessingMode = 'client' | 'server';
 

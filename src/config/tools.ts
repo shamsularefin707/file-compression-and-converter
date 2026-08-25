@@ -46,7 +46,7 @@ export const TOOLS: ToolDefinition[] = [
       },
       {
         question: 'Are my files saved permanently?',
-        answer: 'No. File processing is handled ephemerally and temporary files are automatically deleted immediately after conversion.'
+        answer: 'No. Serverless processing uses ephemeral volatile RAM buffers that auto-destroy upon completion. 0% disk storage.'
       }
     ]
   },
@@ -84,7 +84,7 @@ export const TOOLS: ToolDefinition[] = [
     faqs: [
       {
         question: 'Will scanned PDFs work?',
-        answer: 'This tool extracts native vector text. Scanned PDFs (images without embedded text layers) will generate a notice recommending OCR processing.'
+        answer: 'This tool extracts native vector text layers. Scanned PDFs (pure images without embedded text) require OCR pre-processing.'
       }
     ]
   },
@@ -187,7 +187,7 @@ export const TOOLS: ToolDefinition[] = [
     },
     features: [
       'Strips script, style, and navigation noise',
-      'Converts <h1>-<h6>, <p>, <a>, <ul>, and <table> elements',
+      'Converts headings, paragraphs, links, lists, and tables',
       '100% private client-side processing'
     ],
     howItWorks: [
@@ -300,6 +300,39 @@ export const TOOLS: ToolDefinition[] = [
       { step: 1, title: 'Upload Images', description: 'Select one or more image files.' },
       { step: 2, title: 'Generate PDF', description: 'Pages are assembled with custom dimensions.' },
       { step: 3, title: 'Download PDF', description: 'Download your compiled document.' }
+    ],
+    faqs: []
+  },
+  {
+    id: 'pdf-to-images',
+    slug: 'pdf-to-images',
+    name: 'PDF to Images Extractor',
+    description: 'Render PDF page streams into high-resolution PNG or JPG image files.',
+    category: 'pdf',
+    action: 'convert',
+    inputFormats: ['pdf'],
+    outputFormats: ['png', 'jpg'],
+    defaultOutputFormat: 'png',
+    maxFileSizeMB: 30,
+    processingMode: 'client',
+    icon: 'ImageIcon',
+    popular: false,
+    isAiReady: false,
+    seo: {
+      title: 'PDF to Images Extractor | PNG & JPG Output',
+      description: 'Extract pages from PDF files as crisp images directly inside your browser sandbox.',
+      keywords: ['pdf to images', 'pdf page extractor', 'pdf to png'],
+      h1: 'Extract PDF Pages as PNG / JPG Images',
+    },
+    features: [
+      'Renders each page to high-DPI canvas stream',
+      'Download individual page images or combined ZIP',
+      '100% local client processing'
+    ],
+    howItWorks: [
+      { step: 1, title: 'Upload PDF', description: 'Select your PDF document.' },
+      { step: 2, title: 'Render Pages', description: 'Pages are rendered onto HTML5 canvas nodes.' },
+      { step: 3, title: 'Download Images', description: 'Save rendered page graphics.' }
     ],
     faqs: []
   },
@@ -436,13 +469,181 @@ export const TOOLS: ToolDefinition[] = [
       { step: 3, title: 'Download JPG', description: 'Download ready JPG image.' }
     ],
     faqs: []
+  },
+  {
+    id: 'png-to-jpg',
+    slug: 'png-to-jpg',
+    name: 'PNG to JPG Converter',
+    description: 'Convert PNG image files to JPEG format for universal compatibility.',
+    category: 'image',
+    action: 'convert',
+    inputFormats: ['png'],
+    outputFormats: ['jpg'],
+    defaultOutputFormat: 'jpg',
+    maxFileSizeMB: 15,
+    processingMode: 'client',
+    icon: 'RefreshCw',
+    popular: false,
+    isAiReady: false,
+    seo: {
+      title: 'PNG to JPG Converter Online | Fast & Free',
+      description: 'Convert PNG graphics to JPG images instantly in your web browser.',
+      keywords: ['png to jpg', 'convert png to jpeg', 'png jpg converter'],
+      h1: 'Convert PNG Images to JPG',
+    },
+    features: [
+      'Fast client-side canvas transcoding',
+      'Adjustable white background fill for transparent channels',
+      'Zero file upload required'
+    ],
+    howItWorks: [
+      { step: 1, title: 'Upload PNG', description: 'Select your PNG file.' },
+      { step: 2, title: 'Transcode', description: 'Convert image layers to JPEG buffer.' },
+      { step: 3, title: 'Download', description: 'Download JPG image.' }
+    ],
+    faqs: []
+  },
+  {
+    id: 'jpg-to-png',
+    slug: 'jpg-to-png',
+    name: 'JPG to PNG Converter',
+    description: 'Convert JPG images to losslessly compressed PNG files.',
+    category: 'image',
+    action: 'convert',
+    inputFormats: ['jpg', 'jpeg'],
+    outputFormats: ['png'],
+    defaultOutputFormat: 'png',
+    maxFileSizeMB: 15,
+    processingMode: 'client',
+    icon: 'RefreshCw',
+    popular: false,
+    isAiReady: false,
+    seo: {
+      title: 'JPG to PNG Converter Online | Lossless Output',
+      description: 'Convert JPEG photos into PNG format with 100% client-side rendering.',
+      keywords: ['jpg to png', 'convert jpeg to png', 'jpg png converter'],
+      h1: 'Convert JPG Images to PNG Format',
+    },
+    features: [
+      'Lossless pixel data encoding',
+      'Browser-based canvas processing',
+      'No quality degradation'
+    ],
+    howItWorks: [
+      { step: 1, title: 'Upload JPG', description: 'Select your JPG file.' },
+      { step: 2, title: 'Encode', description: 'Render pixels into PNG stream.' },
+      { step: 3, title: 'Download', description: 'Save .png file.' }
+    ],
+    faqs: []
+  },
+
+  // --- DATA & DEVELOPER TOOLS ---
+  {
+    id: 'csv-to-json',
+    slug: 'csv-to-json',
+    name: 'CSV to JSON Converter',
+    description: 'Convert CSV data spreadsheets into structured JSON arrays for developers.',
+    category: 'data',
+    action: 'convert',
+    inputFormats: ['csv'],
+    outputFormats: ['json'],
+    defaultOutputFormat: 'json',
+    maxFileSizeMB: 20,
+    processingMode: 'client',
+    icon: 'Database',
+    popular: false,
+    isAiReady: true,
+    seo: {
+      title: 'CSV to JSON Converter | Free Developer Tool',
+      description: 'Convert CSV files to JSON object arrays instantly in your browser sandbox.',
+      keywords: ['csv to json', 'convert csv json', 'csv json parser online'],
+      h1: 'Convert CSV Spreadsheets to JSON',
+    },
+    features: [
+      'Automatic column header key detection',
+      'Handles numeric and boolean type parsing',
+      '100% private local browser execution'
+    ],
+    howItWorks: [
+      { step: 1, title: 'Upload CSV', description: 'Select your .csv table.' },
+      { step: 2, title: 'Parse', description: 'Client parser maps rows to JSON objects.' },
+      { step: 3, title: 'Download JSON', description: 'Save formatted JSON file.' }
+    ],
+    faqs: []
+  },
+  {
+    id: 'json-to-csv',
+    slug: 'json-to-csv',
+    name: 'JSON to CSV Converter',
+    description: 'Flatten structured JSON data arrays into tabular CSV spreadsheets.',
+    category: 'data',
+    action: 'convert',
+    inputFormats: ['json'],
+    outputFormats: ['csv'],
+    defaultOutputFormat: 'csv',
+    maxFileSizeMB: 20,
+    processingMode: 'client',
+    icon: 'FileSpreadsheet',
+    popular: false,
+    isAiReady: false,
+    seo: {
+      title: 'JSON to CSV Converter | Online Data Tool',
+      description: 'Convert JSON object arrays to CSV format for Excel and Google Sheets.',
+      keywords: ['json to csv', 'convert json csv', 'json to spreadsheet'],
+      h1: 'Convert JSON Data to Tabular CSV',
+    },
+    features: [
+      'Flattens nested object fields into column headers',
+      'Escapes commas and quotes according to RFC 4180',
+      '100% client-side privacy'
+    ],
+    howItWorks: [
+      { step: 1, title: 'Upload JSON', description: 'Drop your .json data file.' },
+      { step: 2, title: 'Flatten', description: 'Objects are mapped to table columns.' },
+      { step: 3, title: 'Download CSV', description: 'Save as .csv spreadsheet.' }
+    ],
+    faqs: []
+  },
+  {
+    id: 'csv-to-xlsx',
+    slug: 'csv-to-xlsx',
+    name: 'CSV to Excel (XLSX) Converter',
+    description: 'Convert CSV text tables into native Microsoft Excel (.xlsx) workbooks.',
+    category: 'data',
+    action: 'convert',
+    inputFormats: ['csv'],
+    outputFormats: ['xlsx'],
+    defaultOutputFormat: 'xlsx',
+    maxFileSizeMB: 20,
+    processingMode: 'client',
+    icon: 'FileSpreadsheet',
+    popular: false,
+    isAiReady: false,
+    seo: {
+      title: 'CSV to Excel (XLSX) Converter | Free Online Tool',
+      description: 'Convert CSV files to Microsoft Excel (.xlsx) workbooks directly in your browser.',
+      keywords: ['csv to xlsx', 'csv to excel', 'convert csv to xlsx'],
+      h1: 'Convert CSV to Microsoft Excel Workbook',
+    },
+    features: [
+      'Generates native OpenXML sheet structures',
+      'Preserves character encodings (UTF-8)',
+      '100% browser-based conversion'
+    ],
+    howItWorks: [
+      { step: 1, title: 'Select CSV', description: 'Upload your .csv spreadsheet.' },
+      { step: 2, title: 'Build Sheet', description: 'XLSX sheet tables are assembled.' },
+      { step: 3, title: 'Download XLSX', description: 'Open natively in Microsoft Excel.' }
+    ],
+    faqs: []
   }
 ];
 
 export const TOOL_CATEGORIES = [
   { id: 'document', name: 'Document & AI Tools', description: 'Convert PDFs, Word docs, and HTML into AI-ready Markdown format.' },
-  { id: 'pdf', name: 'PDF Tools', description: 'Compress, optimize, and combine PDF files.' },
-  { id: 'image', name: 'Image Tools', description: 'Compress, resize, and convert JPG, PNG, and WebP images.' },
+  { id: 'pdf', name: 'PDF Tools', description: 'Compress, optimize, merge, and extract PDF files.' },
+  { id: 'image', name: 'Image Tools', description: 'Compress, resize, and convert JPG, PNG, WebP, and AVIF images.' },
+  { id: 'data', name: 'Data & Developer Tools', description: 'Convert CSV, JSON, and Excel data files.' },
   { id: 'office', name: 'Office Tools', description: 'Convert Microsoft Office formats into PDF and Word docs.' },
 ];
 

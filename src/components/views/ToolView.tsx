@@ -6,7 +6,7 @@ import { Workspace } from '../Workspace';
 import { ToolCard } from '../tools/ToolCard';
 import { AdSlot } from '../ads/AdSlot';
 import { TOOLS } from '../../config/tools';
-import { Sparkles, Shield, CheckCircle2, Lock } from 'lucide-react';
+import { Sparkles, Shield, CheckCircle2, Lock, FileType, Lightbulb } from 'lucide-react';
 
 interface ToolViewProps {
   tool: ToolDefinition;
@@ -55,12 +55,12 @@ export const ToolView: React.FC<ToolViewProps> = ({ tool, onNavigate }) => {
             {tool.category.toUpperCase()} TOOL
           </span>
           <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1">
-            <Lock className="w-3 h-3 text-emerald-500" />
-            <span>{tool.processingMode === 'client' ? '100% Client-Side Privacy' : 'Serverless Auto-Deleted Files'}</span>
+            <Lock className="w-3.5 h-3.5 text-emerald-500" />
+            <span>{tool.processingMode === 'client' ? '100% Client-Side Privacy' : 'Serverless Ephemeral RAM Processing'}</span>
           </span>
           {tool.isAiReady && (
             <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>AI-Ready LLM Optimization</span>
             </span>
           )}
@@ -78,6 +78,36 @@ export const ToolView: React.FC<ToolViewProps> = ({ tool, onNavigate }) => {
       <div className="my-8">
         <Workspace initialTargetFormat={tool.defaultOutputFormat} />
       </div>
+
+      {/* Supported Formats Section */}
+      <section className="my-10 p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <FileType className="w-5 h-5 text-brand-500" />
+          <span>Supported File Formats</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60">
+            <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Accepted Input Formats:</span>
+            <div className="flex flex-wrap gap-1.5 font-mono text-xs">
+              {tool.inputFormats.map((fmt) => (
+                <span key={fmt} className="px-2 py-0.5 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 uppercase">
+                  .{fmt}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60">
+            <span className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Generated Output Formats:</span>
+            <div className="flex flex-wrap gap-1.5 font-mono text-xs">
+              {tool.outputFormats.map((fmt) => (
+                <span key={fmt} className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase">
+                  .{fmt}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* AI-Ready Document Special Explanation */}
       {tool.isAiReady && (
@@ -151,6 +181,28 @@ export const ToolView: React.FC<ToolViewProps> = ({ tool, onNavigate }) => {
           </div>
         </section>
       )}
+
+      {/* Common Use Cases Section */}
+      <section className="my-10 p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <Lightbulb className="w-5 h-5 text-amber-500" />
+          <span>Common Use Cases</span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">AI Prompt Ingestion</h3>
+            <p className="leading-relaxed">Extract clean text and document structure for ChatGPT, Claude, and RAG knowledge bases.</p>
+          </div>
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Web & Document Publishing</h3>
+            <p className="leading-relaxed">Convert legacy document files into lightweight web-ready formats like WebP or Markdown.</p>
+          </div>
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Secure & Fast Archiving</h3>
+            <p className="leading-relaxed">Shrink large files for email attachments and local storage without losing typography or quality.</p>
+          </div>
+        </div>
+      </section>
 
       {/* Privacy Notice Card */}
       <section className="my-10 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 dark:text-emerald-300 flex items-start gap-3 text-xs sm:text-sm">
